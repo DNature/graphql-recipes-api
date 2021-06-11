@@ -1,4 +1,4 @@
-import { ObjectType, Field } from "type-graphql";
+import { Field, ObjectType } from 'type-graphql'
 
 @ObjectType({
   description: `JWT token object type. Used for client authentication. 
@@ -6,5 +6,5 @@ import { ObjectType, Field } from "type-graphql";
 })
 export class AuthToken {
   @Field()
-  token: string;
+  token: string
 }

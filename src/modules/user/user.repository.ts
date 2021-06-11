@@ -1,59 +1,62 @@
-import { Repository, EntityRepository } from "typeorm";
-import { Service } from "typedi";
-import bcrypt from "bcryptjs";
-
-import { User } from "./user.entity";
-import { UserInput } from "./types/user-input.type";
-import { LoginInput } from "./types/login-input.type";
-import { PayloadUser } from "src/utils/types/payload-user.interface";
+import bcrypt from 'bcryptjs'
+import { PayloadUser } from 'src/utils/types/payload-user.interface'
+import { Service } from 'typedi'
+import { EntityRepository, Repository } from 'typeorm'
+import { LoginInput } from './types/login-input.type'
+import { UserInput } from './types/user-input.type'
+import { User } from './user.entity'
 
 @Service()
 @EntityRepository(User)
 export class UserRepository extends Repository<User> {
   async findUser(id: number): Promise<User> {
-    const foundUser = await this.findOne(id);
+    const foundUser = await this.findOne(id)
 
     if (!foundUser) {
-      throw new Error(`User not found found`);
+      throw new Error(`User not found found`)
     }
 
-    return foundUser;
+    return foundUser
   }
 
   async createUser(userInput: UserInput): Promise<User> {
-    const { name, email, password } = userInput;
+    const { name, email, password } = userInput
 
-    const user = new User();
+    const user = new User()
 
-    user.name = name;
-    user.email = email;
-    user.password = await this.hashPassword(password);
+    user.name = name
+    user.email = email
+    user.password = await this.hashPassword(password)
 
     try {
-      await user.save();
-      return await this.findOne(user.id);
+      await user.save()
+      return await this.findOne(user.id)
     } catch (error) {
-      if (error.code === "23505") {
-        throw new Error("Email already exists");
+      if (error.code === '23505') {
+        throw new Error('Email already exists')
       } else {
-        throw error;
+        throw error
       }
     }
   }
 
   async validateCredentials(loginInput: LoginInput): Promise<PayloadUser> {
-    const { email, password } = loginInput;
-    const user = await this.findOne({ email });
+    const { email, password } = loginInput
+    const user = await this.findOne({ email })
 
     if (user && (await user.validatePassword(password))) {
-      const payloadUser: PayloadUser = { userId: user.id, email: user.email };
-      return payloadUser;
+      const payloadUser: PayloadUser = {
+        userId: user.id,
+        email: user.email,
+        username: user.name,
+      }
+      return payloadUser
     }
 
-    return undefined;
+    return undefined
   }
 
   private async hashPassword(password: string): Promise<string> {
-    return await bcrypt.hash(password, 12);
+    return await bcrypt.hash(password, 12)
   }
 }

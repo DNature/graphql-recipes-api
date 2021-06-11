@@ -1,58 +1,57 @@
+import { Loader } from 'src/utils/types/loader.interface'
+import { PayloadUser } from 'src/utils/types/payload-user.interface'
 import {
-  Resolver,
   Arg,
-  Mutation,
-  Ctx,
   Authorized,
-  Query,
-  Int,
+  Ctx,
   FieldResolver,
+  Int,
+  Mutation,
+  Query,
+  Resolver,
   ResolverInterface,
   Root,
-} from "type-graphql";
-
-import { RecipeService } from "./recipe.service";
-import { Recipe } from "./recipe.entity";
-import { CreateRecipeInput } from "./types/create-recipe-input.type";
-import { UpdateRecipeInput } from "./types/update-recipe-input.type";
-import { PayloadUser } from "src/utils/types/payload-user.interface";
-import { Category } from "../category/category.entity";
-import { User } from "../user/user.entity";
-import { Loader } from "src/utils/types/loader.interface";
-import { NameOrIdInput } from "../utils/types/name-or-id-input.type";
-import { FilterInput } from "./types/filter-input.type";
+} from 'type-graphql'
+import { Category } from '../category/category.entity'
+import { User } from '../user/user.entity'
+import { NameOrIdInput } from '../utils/types/name-or-id-input.type'
+import { Recipe } from './recipe.entity'
+import { RecipeService } from './recipe.service'
+import { CreateRecipeInput } from './types/create-recipe-input.type'
+import { FilterInput } from './types/filter-input.type'
+import { UpdateRecipeInput } from './types/update-recipe-input.type'
 
 @Resolver((of) => Recipe)
 export class RecipeResolver implements ResolverInterface<Recipe> {
   constructor(private recipeService: RecipeService) {}
   @Authorized()
   @Query((returns) => [Recipe], {
-    description: "Returns an array of all existing recipes",
+    description: 'Returns an array of all existing recipes',
   })
   async getRecipes(): Promise<Recipe[]> {
-    return await this.recipeService.getRecipes();
+    return await this.recipeService.getRecipes()
   }
 
   @Authorized()
   @Query((returns) => Recipe, {
-    description: "Returns one recipe given either its name or id",
+    description: 'Returns one recipe given either its name or id',
   })
   async getOneRecipe(
-    @Arg("recipeNameOrId", (type) => NameOrIdInput)
+    @Arg('recipeNameOrId', (type) => NameOrIdInput)
     recipeNameOrId: NameOrIdInput
   ): Promise<Recipe> {
-    return await this.recipeService.getOneRecipe(recipeNameOrId);
+    return await this.recipeService.getOneRecipe(recipeNameOrId)
   }
 
   @Authorized()
   @Query((returns) => [Recipe], {
     description:
-      "Returns an array of all existing recipes belonging to the current user",
+      'Returns an array of all existing recipes belonging to the current user',
   })
   async getMyRecipes(
-    @Ctx("payloadUser") payloadUser: PayloadUser
+    @Ctx('payloadUser') payloadUser: PayloadUser
   ): Promise<Recipe[]> {
-    return await this.recipeService.getMyRecipes(payloadUser);
+    return await this.recipeService.getMyRecipes(payloadUser)
   }
 
   @Authorized()
@@ -63,9 +62,9 @@ export class RecipeResolver implements ResolverInterface<Recipe> {
     Returns an array of recipes`,
   })
   async getFilteredRecipes(
-    @Arg("filterInput") filterInput: FilterInput
+    @Arg('filterInput') filterInput: FilterInput
   ): Promise<Recipe[]> {
-    return await this.recipeService.getFilteredRecipes(filterInput);
+    return await this.recipeService.getFilteredRecipes(filterInput)
   }
 
   @Authorized()
@@ -74,13 +73,10 @@ export class RecipeResolver implements ResolverInterface<Recipe> {
       to an existing category provided with either name or id. Returns the newly created recipe`,
   })
   async createRecipe(
-    @Arg("createRecipeInput") createRecipeInput: CreateRecipeInput,
-    @Ctx("payloadUser") payloadUser: PayloadUser
+    @Arg('createRecipeInput') createRecipeInput: CreateRecipeInput,
+    @Ctx('payloadUser') payloadUser: PayloadUser
   ): Promise<Recipe> {
-    return await this.recipeService.createRecipe(
-      createRecipeInput,
-      payloadUser
-    );
+    return await this.recipeService.createRecipe(createRecipeInput, payloadUser)
   }
 
   @Authorized()
@@ -89,13 +85,10 @@ export class RecipeResolver implements ResolverInterface<Recipe> {
     performed by the recipe's owner user. Returns the updated recipe`,
   })
   async updateRecipe(
-    @Arg("updateRecipeInput") updateRecipeInput: UpdateRecipeInput,
-    @Ctx("payloadUser") payloadUser: PayloadUser
+    @Arg('updateRecipeInput') updateRecipeInput: UpdateRecipeInput,
+    @Ctx('payloadUser') payloadUser: PayloadUser
   ): Promise<Recipe> {
-    return await this.recipeService.updateRecipe(
-      updateRecipeInput,
-      payloadUser
-    );
+    return await this.recipeService.updateRecipe(updateRecipeInput, payloadUser)
   }
 
   @Authorized()
@@ -105,25 +98,25 @@ export class RecipeResolver implements ResolverInterface<Recipe> {
   Returns true if the operation was successful`,
   })
   async deleteRecipe(
-    @Arg("id", (type) => Int) id: number,
-    @Ctx("payloadUser") payloadUser: PayloadUser
+    @Arg('id', (type) => Int) id: number,
+    @Ctx('payloadUser') payloadUser: PayloadUser
   ): Promise<boolean> {
-    return await this.recipeService.deleteRecipe(id, payloadUser);
+    return await this.recipeService.deleteRecipe(id, payloadUser)
   }
 
   @FieldResolver()
   async category(
     @Root() recipe: Recipe,
-    @Ctx("loader") loader: Loader
+    @Ctx('loader') loader: Loader
   ): Promise<Category> {
-    return await loader.category.load(recipe.categoryId);
+    return await loader.category.load(recipe.categoryId)
   }
 
   @FieldResolver()
   async user(
     @Root() recipe: Recipe,
-    @Ctx("loader") loader: Loader
+    @Ctx('loader') loader: Loader
   ): Promise<User> {
-    return await loader.user.load(recipe.userId);
+    return await loader.user.load(recipe.userId)
   }
 }
